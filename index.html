@@ -48,7 +48,7 @@
         }
         reader.readAsText(file);
         reader.onload = function() {
-        let arrFragments = reader.result.trim().split('\r\n').map(String);
+        let arrFragments = reader.result.trim().split(/\r\n|\n|\r/).map(String);
         let longestPuzzle = "";
 
 function canConnect(prev, next) {
