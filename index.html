@@ -27,6 +27,9 @@
       button{
         cursor: pointer;
         font-size: 14px;
+        padding: 2px 9px;
+        background-color: lightyellow;
+        border: 1px solid grey;
       }
       </style>
   </head>
@@ -39,68 +42,56 @@
       document.querySelector('button').addEventListener('click', function() {
         let file = document.getElementById('file').files[0];
         let reader = new FileReader();
+        if (!file) {
+          alert('Файл не обрано');
+          return;
+        }
         reader.readAsText(file);
         reader.onload = function() {
         let arrFragments = reader.result.trim().split('\r\n').map(String);
-        console.log(arrFragments);
-        const dp = {};
-        const prev = {};
-        let maxLength = 0;
-        let lastDigit = null;
-        
-        // Ініціалізація dp та prev
-        for (const fragment of arrFragments) {
-          const lastTwoDigits = fragment.substring(fragment.length - 2);
-          dp[lastTwoDigits] = 0; // Ініціалізуємо довжину послідовності
-          prev[lastTwoDigits] = null; // Для відновлення послідовності
-        }
-        
-        // Оновлення dp
-        for (const fragment of arrFragments) {
-          const firstTwoDigits = fragment.substring(0, 2);
-          const lastTwoDigits = fragment.substring(fragment.length - 2);
-          
-          for (const key in dp) {
-            if (key === firstTwoDigits && dp[key] + 1 > dp[lastTwoDigits]) {
-              dp[lastTwoDigits] = dp[key] + 1;
-              prev[lastTwoDigits] = key; // Зберігаємо попередній фрагмент
-            }
-          }
-        }
-        
-        // Знаходимо максимальну довжину та відповідний фрагмент
-        for (const key in dp) {
-          if (dp[key] > maxLength) {
-            maxLength = dp[key];
-            lastDigit = key;
-          }
-        }
-        
-        // Відновлюємо послідовність
-        const sequence = [];
-        while (lastDigit !== null) {
-          for (const fragment of arrFragments) {
-            if (fragment.substring(fragment.length - 2) === lastDigit) {
-              sequence.unshift(fragment);
-              lastDigit = prev[lastDigit];
-              break;
-            }
-          }
-        }
-        console.log(sequence);
-        const cutOffSequence = [];
-        for (let i = 0; i < sequence.length; i++) {
-          if (i === 0) {
-            cutOffSequence.push(sequence[i]); 
-        } else {
-          cutOffSequence.push(sequence[i].slice(2));
-        }
-      }
-        // Об'єднуємо фрагменти в один рядок
-        console.log(cutOffSequence);
-        const longestSequence = cutOffSequence.join('');
-        console.log(longestSequence);
-        document.write('<div> 1. Найбільша послідовність буде: ' + longestSequence + '</div>');
+        let longestPuzzle = "";
+
+function canConnect(prev, next) {
+  return prev.slice(-2) === next.slice(0, 2);
+}
+
+function buildSequenceString(sequence) {
+  let result = sequence[0];
+  for (let i = 1; i < sequence.length; i++) {
+    result += sequence[i].slice(2);
+  }
+  return result;
+}
+
+function findSequences(currentSequence, remainingNumbers) {
+  const currentSequenceString = buildSequenceString(currentSequence);
+  if (currentSequenceString.length > longestPuzzle.length) {
+    longestPuzzle = currentSequenceString;
+  }
+
+  if (remainingNumbers.length === 0) {
+    return;
+  }
+
+  const lastNumber = currentSequence[currentSequence.length - 1];
+
+  for (let i = 0; i < remainingNumbers.length; i++) {
+    const nextNumber = remainingNumbers[i];
+    if (canConnect(lastNumber, nextNumber)) {
+      const newSequence = [...currentSequence, nextNumber];
+      const newRemainingNumbers = remainingNumbers.filter((_, index) => index !== i);
+      findSequences(newSequence, newRemainingNumbers);
+    }
+  }
+}
+
+for (const startNumber of arrFragments) {
+  const remainingNumbers = arrFragments.filter(num => num !== startNumber);
+  findSequences([startNumber], remainingNumbers);
+}
+
+        console.log(longestPuzzle);
+        document.write('<div>  Найбільша послідовність буде: ' + longestPuzzle + '</div>');
         }
         reader.onerror = function() {
           console.log(reader.error);
