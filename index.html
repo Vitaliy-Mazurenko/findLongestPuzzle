@@ -91,7 +91,9 @@ for (const startNumber of arrFragments) {
 }
 
         console.log(longestPuzzle);
+        console.log('length of the maximum sequence ' + longestPuzzle.length);
         document.write('<div>  Найбільша послідовність буде: ' + longestPuzzle + '</div>');
+        document.write('<div>  Довжина максимальної послідовності в символах: ' + longestPuzzle.length + '</div>');
         }
         reader.onerror = function() {
           console.log(reader.error);
